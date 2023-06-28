@@ -5,7 +5,8 @@ const {
     deletePromo,
     getRetailer,
     searchRetailer,
-    getRetailerOnly
+    getRetailerOnly,
+    updateRetailer
 } = require("../controllers/RetailerController");
 const router = express.Router();
 
@@ -33,6 +34,7 @@ router
 
 router
     .route("/admin/retailer/:id")
-    .delete(isAuthenticatedUser, deletePromo);
+    .delete(isAuthenticatedUser, deletePromo)
+    .put(updateRetailer);
 
 module.exports = router;

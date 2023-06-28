@@ -25,6 +25,7 @@
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.22",
     "stripe": "^8.174.0",
-    "validator": "^13.6.0"
+    "validator": "^13.6.0",
+    "zipcodes": "^8.0.0"
   }
 }

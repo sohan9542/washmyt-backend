@@ -2,6 +2,7 @@ const Retailer = require("../models/retailerModel");
 const ErrorHander = require("../utils/errorhander");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const productModel = require("../models/productModel");
+const zipcodes = require('zipcodes');
 
 exports.newRetailer = catchAsyncErrors(async (req, res, next) => {
   const retailer = await Retailer.create(req.body);
@@ -96,15 +97,36 @@ exports.searchRetailer = catchAsyncErrors(async (req, res, next) => {
   if (body.model) {
     newRetailer = newRetailer.filter((item) => item.model.find(e=> e === body.model.toLowerCase()) === body.model.toLowerCase());
   }
+  const distance = (zip1, zip2)=>{
+    let dis = zipcodes.distance(zip1, zip2);
+    // console.log(dis)
+    return dis;
+  }
   if (body.zip) {
-    newRetailer = newRetailer.filter(
-      (item) =>
-        item.address.toLowerCase().indexOf(body.zip.toLowerCase()) !== -1
-    );
+    newRetailer = newRetailer.filter((item) => distance(parseInt(body.zip), parseInt(item.zip)) <= 50);
   }
 
   res.status(200).json({
     success: true,
     result: newRetailer,
+  });
+});
+
+exports.updateRetailer = catchAsyncErrors(async (req, res, next) => {
+  let retailer = await Retailer.findById(req.params.id);
+
+  if (!retailer) {
+    return next(new ErrorHander("Retailer not found", 404));
+  }
+
+  retailer = await Retailer.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
+    retailer,
   });
 });

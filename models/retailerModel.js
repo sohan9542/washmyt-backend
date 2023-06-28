@@ -13,6 +13,7 @@ const Retailer = new mongoose.Schema({
         type: String,
         require: true
     },
+    zip:String,
     make: Array,
     model: Array,
     car: Array
