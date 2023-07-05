@@ -21,8 +21,11 @@ router
   .get(getAllCategory);
 
 router
+  .route("/category/model")
+  .get(getCategoryDetails);
+
+router
   .route("/admin/category/:id")
-  .get(isAuthenticatedUser, getCategoryDetails)
   .put(isAuthenticatedUser, updateCategory)
   .delete(isAuthenticatedUser, deleteCategory);
 
