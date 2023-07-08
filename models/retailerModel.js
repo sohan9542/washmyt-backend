@@ -16,7 +16,11 @@ const Retailer = new mongoose.Schema({
     zip:String,
     make: Array,
     model: Array,
-    car: Array
+    car: Array,
+    testDrive: {
+        type: Boolean,
+        default: false
+    }
 
 });
 

@@ -191,6 +191,7 @@ exports.getProductDetails = catchAsyncErrors(async (req, res, next) => {
 // Update Product -- Admin
 
 exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
+
   let product = await Product.findById(req.params.id);
 
   if (!product) {
@@ -199,20 +200,20 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
 
   // Images Start Here
   let images = [];
+  let imagesLinks = [];
 
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
-  }
+  req.body.images.map((item)=>{
+    if(typeof item === 'string'){
+      images.push(item);
+    }
+    else{
+      imagesLinks = [...imagesLinks, item]
+    }
+  })
+
 
   if (images !== undefined) {
     // Deleting Images From Cloudinary
-    for (let i = 0; i < product.images.length; i++) {
-      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
-    }
-
-    const imagesLinks = [];
 
     for (let i = 0; i < images.length; i++) {
       const result = await cloudinary.v2.uploader.upload(images[i], {
@@ -228,9 +229,11 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
     req.body.images = imagesLinks;
   }
 
+
+
   product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
-    runValidators: true,
+    runValidators: false,
     useFindAndModify: false,
   });
 
