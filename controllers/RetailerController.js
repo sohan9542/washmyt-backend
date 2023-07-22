@@ -3,8 +3,38 @@ const ErrorHander = require("../utils/errorhander");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const productModel = require("../models/productModel");
 const zipcodes = require('zipcodes');
+const cloudinary = require("cloudinary");
 
 exports.newRetailer = catchAsyncErrors(async (req, res, next) => {
+  let images = [];
+
+
+
+  if (typeof req.body.images === "string") {
+    images.push(req.body.images);
+  } else {
+    // console.log(req.body.images)
+    images = req.body.images;
+  }
+
+
+  const imagesLinks = [];
+
+  for (let i = 0; i < images.length; i++) {
+    const result = await cloudinary.v2.uploader.upload(images[i], {
+      folder: "products",
+    });
+
+    imagesLinks.push({
+      public_id: result.public_id,
+      url: result.secure_url,
+    });
+  }
+
+
+  req.body.images = imagesLinks;
+
+
   const retailer = await Retailer.create(req.body);
 
   res.status(201).json({
@@ -117,6 +147,35 @@ exports.updateRetailer = catchAsyncErrors(async (req, res, next) => {
 
   if (!retailer) {
     return next(new ErrorHander("Retailer not found", 404));
+  }
+  let images = [];
+  let imagesLinks = [];
+
+  req.body.images.map((item)=>{
+    if(typeof item === 'string'){
+      images.push(item);
+    }
+    else{
+      imagesLinks = [...imagesLinks, item]
+    }
+  })
+
+
+  if (images !== undefined) {
+    // Deleting Images From Cloudinary
+
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.v2.uploader.upload(images[i], {
+        folder: "products",
+      });
+
+      imagesLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+
+    req.body.images = imagesLinks;
   }
 
   retailer = await Retailer.findByIdAndUpdate(req.params.id, req.body, {

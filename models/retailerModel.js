@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
 
 const Retailer = new mongoose.Schema({
+    images: [
+        {
+          public_id: {
+            type: String,
+            required: true,
+          },
+          url: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
     dealerName: {
         type: String,
         require: true
